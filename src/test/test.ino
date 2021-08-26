@@ -6,6 +6,7 @@ int in3 = 4;
 int in4 = 5; 
 int enA = 10;
 int enB = 11;
+int blinkSpeed = 500;
 
 void goForward(int speed=128);
 
@@ -18,6 +19,8 @@ void setup(){
     pinMode(LED_BUILTIN, OUTPUT);
     digitalWrite(LED_BUILTIN, LOW);
     goForward();
+    Wire.begin(0x8);
+    Wire.onReceive(receiveEvent);
 
     
 }
@@ -33,10 +36,24 @@ void goForward(int speed=128){
 
 }
 
+void receiveEvent(int howmany){
+  while(Wire.available()){
+    char c = Wire.read();
+    switch(c){
+      case 0:
+        blinkSpeed=1000;
+        break;
+      default:
+        blinkSpeed=500;
+        break;
+    }
+  }
+}
+
 void loop() {
   digitalWrite(LED_BUILTIN, HIGH);
-  delay(500);
+  delay(blinkSpeed);
   digitalWrite(LED_BUILTIN, LOW);
-  delay(500);
+  delay(blinkSpeed);
 
 }
