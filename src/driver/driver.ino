@@ -1,16 +1,19 @@
 #include <Wire.h>
 #include <Servo.h>
 
-int in1 = 2; 
-int in2 = 3;
-int in3 = 4; 
-int in4 = 5; 
-int enA = 10;
-int enB = 11;
+//TODO: NOTE when use the Servo library
+//TODO: pin 10 and 9 will lose PWM functionality 
+//TODO: https://forum.arduino.cc/t/pwm-output-not-working-when-servo-activated/398812/3
 
+int in1 = 2; 
+int in2 = 4;
+int in3 = 7; 
+int in4 = 8; 
+int enA = 6;
+int enB = 11;
 int blinkSpeed = 500;
-int cameraServoPin= 6;
-int wheelServoPin= 9;
+int cameraServoPin= 3;
+int wheelServoPin= 5;
 
 Servo cameraServo;
 Servo wheelServo;
@@ -18,11 +21,14 @@ Servo wheelServo;
 int i = 0;
 int diff = 100;
 
+int pos = 0;
+
 void stop();
 void goForward(int speed=128);
 void goBackward(int speed = 128);
-void moveCameraServo(int position = 90);
-void moveWheelServoe(int position = 90);
+void turn(int pos=90);
+void shake(int pos=90);
+
 
 void setup(){
 	pinMode(in1, OUTPUT);
@@ -77,13 +83,14 @@ void goBackward(int speed = 128){
 	blinkSpeed = 500;
 }
 
-void moveCameraServo(int position = 90){
-	cameraServo.write(position);
-	
+void turn(int pos = 90){
+	wheelServo.write(pos);
 }
-void moveWheelServoe(int position = 90){
-	wheelServo.write(position);
+
+void shake(int pos = 90){
+	cameraServo.write(pos);
 }
+
 
 void receiveEvent(int howmany){
 	while(Wire.available()){
@@ -97,6 +104,16 @@ void receiveEvent(int howmany){
 				break;
 			case 2:
 				goBackward();
+				break;
+			case 3: 
+				turn(pos);
+				shake(pos);
+				if(pos == 0){
+					pos = 180;
+				} else {
+					pos = 0;
+				}
+
 				break;
 			default:
 				stop();
